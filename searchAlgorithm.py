@@ -7,6 +7,8 @@ import random
 import os
 from time import sleep
 from termcolor import colored
+
+#Example matrix
 staticMatrix = [["S", 0, 0, "X", 0, "X", "X", "X", "X", "X", 0, "X", "X", 0, 0, "X", "X", 0, 0],
                 ["X", 0, "X", 0, 0, 0, 0, 0, "X", 0, "X", 0, 0, "X", "X", 0, "X", "X", 0],
                 [0, 0, "X", "X", 0, 0, 0, "X", "X", 0, 0, 0, 0, 0, 0, 0, 0, 0, "X"],
@@ -64,46 +66,92 @@ def generateRandomObstacles(matrix, nObstacles):
             cont += 1    
     return matrix
     
-def nextMove(matrix,currentPosition, openSet: set, closeSet: set, index: int = 0):
-    if matrix[currentPosition[0]][currentPosition[1]] != 'G':     
-        currentPoswithCost=(currentPosition, manhatamDistance(currentPosition))
-        closeSet.add(currentPoswithCost)
-        x,y = currentPosition
+#A recursive fuction wich do the movements using closeSet, OpenSet and a taboo list called badWays to not display the ways in which the algorithm stuck due to no solutions
+def startMoving(matrix, currentPosition, openSet: set, closeSet: set, index: int = 0, anterior = None, badWays : set = set()):
+    x,y = currentPosition[0]
+    iterations=0
+    
+    #stop Condition (find G)
+    if matrix[x][y] != 'G':   
+        i = index + 1   
+        if index==0:
+            matrix[x][y]="S"
+            closeSet.add(currentPosition)
+        # Movements which we can do
         listaMovimientos = [(1,0), (-1,0), (0,1), (0,-1)]
+        # Got all the possible movements and put it in our openSet
         for (posX,posY) in listaMovimientos:
             proxMov = ( x+posX, y+posY )
+            # Check if the movement is correct ( len )
             if(checkCorrectPosition(proxMov,matrix)):
-                move= (proxMov,manhatamDistance(proxMov))
-                if(move not in closeSet):
+                move= (proxMov,manhatamDistance(proxMov), i)
+                gotItFlag=False
+                # Check if the movement is already in out closeSet (this is for the index, because a new it have a upper index)
+                for movimientos in closeSet:
+                    if( proxMov == movimientos[0]):
+                        gotItFlag = True
+                # If we dont have it, and is not in our badWays ( this avoid bas ways in which the alogrith couldnt find the goal)
+                if(gotItFlag == False and (move not in badWays)):
                     openSet.add(move)
+                    
+        #Obtenemos el mejor movimiento( el que tiene menor coste )
         bestMoveOfOpenset=checkBestmove(openSet)
-        #print("\nopenSet: ",openSet)
-        #print("\ncloseSet: ",closeSet)
+
+        #Removemos el mejor movimiento de nuestro OpenSet
         openSet.remove(bestMoveOfOpenset)
+        ##Borramos los caminos inutiles  
+        openSet, closeSet, badWays = deleteBadWays(bestMoveOfOpenset, closeSet,openSet,badWays)  
+        #añadimos el mejor movimiento a nuestro closeSet  
+        closeSet.add(bestMoveOfOpenset)
         bestMove=bestMoveOfOpenset[0]
-        #print("bestMove: ",bestMove )
-        #print("openSetDespues: ",openSet)
         paintCells(matrix,closeSet)
-        nextMove(matrix,bestMove, openSet,closeSet)
+        startMoving(matrix,bestMoveOfOpenset, openSet,closeSet,index=i, anterior=index,badWays=badWays)
     else:
-        print("G encontrada en pos: ",currentPosition)
-        return closeSet
- 
+        print("G encontrada en pos: ",currentPosition[0])
+        iterations=currentPosition[2]
 
+    return (openSet,closeSet,badWays,iterations)
+#This fuction delete the badWays in closeSet and their corresponding paths generated
+def deleteBadWays(bestMove, closeSet,openSet,badWays):
+        ##Borramos los caminos inutiles
+        indexActual = bestMove[2]
+        
+        #Check if the way was not valid
+        deleteFlag=False
+        for movimientos in closeSet:
+            move,cost,indexMov=movimientos
+            if indexActual == indexMov:
+                deleteFlag=True
+        #If was not valid, then delete
+        if deleteFlag:
+            for movimientos in closeSet.copy():
+                move,cost,indexMov=movimientos
+                if indexActual == indexMov:
+                    badWays.add(movimientos)
+                    closeSet.discard(movimientos)
+                elif indexActual < indexMov:
+                    closeSet.discard(movimientos)
+            for movimientos in openSet.copy():
+                move,cost,indexMov=movimientos
+                if indexActual <= indexMov:
+                    openSet.discard(movimientos)
+        return openSet,closeSet,badWays
+    
+# This show us the procces of the algorithm
 def paintCells(matrix, closeset: set):
-    os.system('CLS')
+    #os.system('CLS')
     showMatrix(matrix,color=True,closeSet=closeset) 
-    sleep(0.5)
     print()      
+    #sleep(0.5)
 
 
 
- 
+# Check the best move checking the cost of all the movements in the openSet
 def checkBestmove(openSet):
     min=9999999
     bestMoveOfOpenset=0
     for mov in openSet:
-        xymove, coste = mov
+        coste = mov[1]
         if coste < min:
             bestMoveOfOpenset=mov
             min=coste
@@ -113,7 +161,7 @@ def checkBestmove(openSet):
                 
     
     
-    
+# Check if the position is correct    
 def checkCorrectPosition(move,matrix):
     x,y = move
     correct = False
@@ -124,7 +172,8 @@ def checkCorrectPosition(move,matrix):
     else:
         correct=True
     return correct
-                 
+
+# This is the heuristic to be used in our algorithm, which measures the distance from our actual cell to the goal cell     
 def manhatamDistance(move, goal=(5,18)):
     xA,yA = move
     xG,yG = goal
@@ -140,9 +189,12 @@ def main():
     openSet=set()
     closeSet=set()
     state = True
-    currentPosition=(0,0)
+    startPosition = ((0, 0), 0, 0)
+    
     showMatrix(staticMatrix)
-    nextMove(staticMatrix,currentPosition, openSet, closeSet)
+    openSet, closeSet, badWays, iterations = startMoving(staticMatrix,startPosition , openSet, closeSet)
+    print(colored("Best way : ","light_green"),closeSet ,colored("\n\nBadWays: ","light_green"), badWays,colored("\n\nNumber of iterations: ","light_green"),iterations)
+    
     
     
 main()        
