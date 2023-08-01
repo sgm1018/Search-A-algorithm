@@ -17,7 +17,7 @@ This implementation requires the following libraries:
 - termcolor
 
 ## Code Explanation
-## Explanation of openSet and closeSet
+### Explanation of openSet and closeSet
 
 In this A* algorithm implementation, the openSet and closeSet arrays are used to keep track of the nodes being explored and the nodes that have already been explored, respectively.
 
@@ -37,7 +37,7 @@ The A* algorithm follows these steps:
 
 3. If the A* algorithm has finished and has not found the goal node (G), it means that there is no possible path from the initial node to the goal node, and the algorithm terminates without success.
 
-The code consists of the following main functions:
+### The code consists of the following main functions:
 
 1. `createMatrix(N, M)`: Creates a matrix of size N x M.
 2. `showMatrix(matrix, color=False, closeSet=None)`: Displays the matrix. If 'color' is set to True, the openSet and closeSet cells are shown in different colors.
