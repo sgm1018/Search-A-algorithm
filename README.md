@@ -12,18 +12,18 @@ This is an implementation of the A* algorithm in Python, used to find the best p
 
 This implementation requires the following libraries:
 
-- numpy
-- matplotlib
-- termcolor
+- ``numpy``
+- ``matplotlib``
+- ``termcolor``
 
 ## Code Explanation
 ### Explanation of openSet and closeSet
 
 In this A* algorithm implementation, the openSet and closeSet arrays are used to keep track of the nodes being explored and the nodes that have already been explored, respectively.
 
-1. **openSet**: This array represents the set of nodes that have not been fully explored yet. These nodes are potential candidates for the next move. The A* algorithm examines the nodes in the openSet to decide which node is the best one to explore next. The choice is based on the accumulated distance from the initial node to the current node plus a heuristic that estimates the distance from that node to the goal node (in this case, the Manhattan distance is used).
+1. **``openSet``**: This array represents the set of nodes that have not been fully explored yet. These nodes are potential candidates for the next move. The A* algorithm examines the nodes in the openSet to decide which node is the best one to explore next. The choice is based on the accumulated distance from the initial node to the current node plus a heuristic that estimates the distance from that node to the goal node (in this case, the Manhattan distance is used).
 
-2. **closeSet**: This array represents the set of nodes that have already been explored. Once a node in the openSet is explored, it is moved to the closeSet. The A* algorithm will not re-explore nodes that are already in the closeSet to avoid infinite loops or unnecessary repetitions.
+2. **``**closeSet**``**: This array represents the set of nodes that have already been explored. Once a node in the openSet is explored, it is moved to the closeSet. The A* algorithm will not re-explore nodes that are already in the closeSet to avoid infinite loops or unnecessary repetitions.
 
 The A* algorithm follows these steps:
 
