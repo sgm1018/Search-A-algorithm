@@ -53,3 +53,6 @@ The `main()` function initializes the algorithm with the provided `staticMatrix`
 
 Remember to adjust the `staticMatrix` and the number of obstacles in the `generateRandomObstacles()` function to experiment with different scenarios.
 
+## Author
+The File Service Project was developed by **sgm1018**.
+
